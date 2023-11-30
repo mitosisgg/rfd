@@ -1,7 +1,8 @@
 library(nycflights13)
 library(tidyverse)
 
-### 3.2 Rows
+
+# 3.2 Rows ----------------------------------------------------------------
 
 flights |>
   filter(dest == "IAH") |>
@@ -18,10 +19,10 @@ flights |>
   filter(month == 10 & day == 28)
 
 flights |>
-  filter(month %in% c(1,2))
+  filter(month %in% c(1, 2))
 
-# arranging 
-flights |> 
+# arranging
+flights |>
   arrange(year, month, day, dep_time)
 
 flights |>
@@ -67,12 +68,12 @@ flights |>
 
 # 2. Sort flights to find the flights with longest departure delays. Find the flights that left earliest in the morning
 flights |>
-  arrange(desc(dep_delay)) |> 
+  arrange(desc(dep_delay)) |>
   arrange(sched_dep_time)
 
 # 3. Sort flights to find the fastest flights
 flights |>
-  mutate(speed = distance / (air_time / 60)) |> 
+  mutate(speed = distance / (air_time / 60)) |>
   arrange(desc(speed)) |>
   relocate(speed)
 
@@ -81,8 +82,8 @@ flights |>
   filter(year == 2013) |>
   count(month, day)
 
-flights |> 
-  distinct(year, month, day) |> 
+flights |>
+  distinct(year, month, day) |>
   nrow()
 # Yes!
 
@@ -93,29 +94,32 @@ flights |>
 flights |>
   arrange(distance)
 
-# Does it matter what order you used filter() and arrange() if you’re using both? Why/why not? 
+# Does it matter what order you used filter() and arrange() if you’re using both? Why/why not?
 # It's faster to filter first before sorting since there will be less to sort once the initial dataset is filtered down
 
 
 ### Columns
 
-# 3.3.1 mutate()
 
-flights |> 
+# 3.3.1 mutate() ----------------------------------------------------------
+
+
+
+flights |>
   mutate(
     gain = dep_delay - arr_delay,
     speed = distance / air_time * 60,
     .before = 1
   )
 
-flights |> 
+flights |>
   mutate(
     gain = dep_delay - arr_delay,
     speed = distance / air_time * 60,
     .after = day
   )
 
-flights |> 
+flights |>
   mutate(
     gain = dep_delay - arr_delay,
     speed = distance / air_time * 60,
@@ -130,7 +134,7 @@ flights |>
 flights |>
   select(year:day)
 
-flights|>
+flights |>
   select(!year:day)
 
 flights |>
@@ -168,7 +172,7 @@ flights |>
   select(dep_time, dep_delay, arr_time, arr_delay)
 
 # 3. What happens if you specify the name of the same variables multiple times in a select() call?
-# A. It only returns that column once 
+# A. It only returns that column once
 flights |>
   select(dep_time, dep_time, arr_time)
 
@@ -193,8 +197,8 @@ flights |>
 
 
 # 7. Why doesn’t the following work, and what does the error mean?
-flights |> 
-  select(tailnum) |> 
+flights |>
+  select(tailnum) |>
   arrange(arr_delay)
 #> Error in `arrange()`:
 #> ℹ In argument: `..1 = arr_delay`.
@@ -203,71 +207,73 @@ flights |>
 # A. select(tailnum) returns a dataframe with only the tailnum column, so arrange cannot find arr_delay to sort by
 
 
-### 3.5 Groups
+### 3.5 Groups -------------------------------
 
-flights |> 
-  group_by(month) |> 
+flights |>
+  group_by(month) |>
   summarize(
     avg_delay = mean(dep_delay, na.rm = TRUE), # ignore rows with NA
     n = n()
   )
 
-# 3.5.3 slice_ functions
+# 3.5.3 slice_functions ---------------------------------------------------
+
 
 # most delayed flight for each destination
-flights |> 
+flights |>
   group_by(dest) |>
-  slice_max(arr_delay, n = 1, with_ties = FALSE) |> 
-  relocate(dest) |> 
+  slice_max(arr_delay, n = 1, with_ties = FALSE) |>
+  relocate(dest) |>
   arrange(desc(arr_delay))
 
-daily <- flights |>  
+daily <- flights |>
   group_by(year, month, day)
 daily
 
-daily_flights <- daily |> 
+daily_flights <- daily |>
   summarize(
     n = n(),
-    .groups = "drop_last")
+    .groups = "drop_last"
+  )
 daily_flights
 
 
-flights |> 
+flights |>
   summarize(
-    delay = mean(dep_delay, na.rm = TRUE), 
+    delay = mean(dep_delay, na.rm = TRUE),
     n = n(),
     .by = month
   )
 
-# 3.5.7 Exercises
+# 3.5.7 Exercises -----------------------------------
 
 # Which carrier has the worst average delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights |> group_by(carrier, dest) |> summarize(n()))
 # A. F9
-flights |> 
-  group_by(carrier) |> 
-  summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE)) |> 
+flights |>
+  group_by(carrier) |>
+  summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE)) |>
   arrange(desc(avg_dep_delay))
 
 # Find the flights that are most delayed upon departure from each destination.
-# A. 
-flights |> 
-  group_by(dest) |> 
-  arrange(dest, desc(dep_delay)) |> 
-  slice_head(n = 5) |> 
+# A.
+flights |>
+  group_by(dest) |>
+  arrange(dest, desc(dep_delay)) |>
+  slice_head(n = 5) |>
   relocate(dest, dep_delay)
 
-flights |> 
-  group_by(origin) |> 
-  arrange(origin, desc(dep_delay)) |> 
-  slice_head(n = 5) |> 
+flights |>
+  group_by(origin) |>
+  arrange(origin, desc(dep_delay)) |>
+  slice_head(n = 5) |>
   relocate(origin, dep_delay)
 
 
 # How do delays vary over the course of the day. Illustrate your answer with a plot.
-# A. 
-flights_by_sched_dep_time <- flights |> 
-  group_by(sched_dep_time) |> 
-  mutate(avg_dep_delay = mean(dep_delay, na.rm=TRUE)) |>
+# A.
+flights_by_sched_dep_time <- flights |>
+  group_by(sched_dep_time) |>
+  mutate(avg_dep_delay = mean(dep_delay, na.rm = TRUE)) |>
   relocate(avg_dep_delay, hour)
 
 
@@ -279,78 +285,78 @@ ggplot(
   geom_smooth()
 
 flights |>
-  group_by(hour) |> 
-  summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE)) |> 
+  group_by(hour) |>
+  summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE)) |>
   ggplot(aes(x = hour, y = avg_dep_delay)) +
   geom_smooth()
 
 
 # What happens if you supply a negative n to slice_min() and friends?
-flights |> 
-  slice_min(dep_delay, n = 5, with_ties = FALSE) |> 
+flights |>
+  slice_min(dep_delay, n = 5, with_ties = FALSE) |>
   relocate(carrier, dep_delay)
 # returns 5 rows
-  
-flights |> 
-  slice_min(dep_delay, n = -5, with_ties = FALSE) |> 
+
+flights |>
+  slice_min(dep_delay, n = -5, with_ties = FALSE) |>
   relocate(carrier, dep_delay)
 # orders the data frame from least to greatest of the given variable, but returns entire dataset instead of the desired 5 rows
 
 #   Explain what count() does in terms of the dplyr verbs you just learned. What does the sort argument to count() do?
-#   A. count() 
-flights |> 
-  group_by(carrier) |> 
+#   A. count()
+flights |>
+  group_by(carrier) |>
   count(sort = TRUE)
 
-flights |> 
-  group_by(carrier) |> 
+flights |>
+  group_by(carrier) |>
   summarize(
     n = n()
-  ) |> 
+  ) |>
   arrange(n)
 
 #   Suppose we have the following tiny data frame:
-#   
-  df <- tibble(
-    x = 1:5,
-    y = c("a", "b", "a", "a", "b"),
-    z = c("K", "K", "L", "L", "K")
-  )
+#
+df <- tibble(
+  x = 1:5,
+  y = c("a", "b", "a", "a", "b"),
+  z = c("K", "K", "L", "L", "K")
+)
 
 # Write down what you think the output will look like, then check if you were correct, and describe what group_by() does.
-# 
+#
 df |>
   group_by(y)
-# 
+#
 # Write down what you think the output will look like, then check if you were correct, and describe what arrange() does. Also comment on how it’s different from the group_by() in part (a)?
-#   
-  df |>
+#
+df |>
   arrange(y)
-# 
+#
 # Write down what you think the output will look like, then check if you were correct, and describe what the pipeline does.
-# 
+#
 df |>
   group_by(y) |>
   summarize(mean_x = mean(x))
-# 
+#
 # Write down what you think the output will look like, then check if you were correct, and describe what the pipeline does. Then, comment on what the message says.
-# 
+#
 df |>
   group_by(y, z) |>
   summarize(mean_x = mean(x))
-# 
+#
 # Write down what you think the output will look like, then check if you were correct, and describe what the pipeline does. How is the output different from the one in part (d).
-# 
+#
 df |>
   group_by(y, z) |>
   summarize(mean_x = mean(x), .groups = "drop")
-# 
+#
 # Write down what you think the outputs will look like, then check if you were correct, and describe what each pipeline does. How are the outputs of the two pipelines different?
-#   
+#
 df |>
   group_by(y, z) |>
   summarize(mean_x = mean(x))
-# 
+#
 df |>
   group_by(y, z) |>
   mutate(mean_x = mean(x))
@@ -358,16 +364,16 @@ df |>
 install.packages("Lahman")
 library(Lahman)
 
-batters <- Lahman::Batting |> 
-  group_by(playerID) |> 
+batters <- Lahman::Batting |>
+  group_by(playerID) |>
   summarize(
-    performance = sum(H, na.rm = TRUE) /sum(AB, na.rm = TRUE),
+    performance = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
     n = sum(AB, na.rm = TRUE)
   )
 
 batters |>
-  filter(performance > .100) |> 
+  filter(performance > .100) |>
   ggplot(aes(x = n, y = performance)) +
   geom_point(alpha = 1 / 10) +
   geom_smooth(se = FALSE)
-  geom_smooth()
+
