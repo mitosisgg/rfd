@@ -37,3 +37,6 @@ ggplot(annoying, aes(x = `2`, y = `1`)) +
   geom_point()
 
 annoying |> mutate(`3` = (`2` / `1`))
+
+y <- 1:4
+mean(y)
